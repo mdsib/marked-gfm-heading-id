@@ -20,7 +20,7 @@ export function unescape(html) {
   });
 }
 
-export function gfmHeadingId({ prefix = '', globalSlugs = false } = {}) {
+export function gfmHeadingId({ prefix = '', globalSlugs = false, addAnchor = false } = {}) {
   return {
     headerIds: false, // prevent deprecation warning; remove this once headerIds option is removed
     hooks: {
@@ -34,7 +34,7 @@ export function gfmHeadingId({ prefix = '', globalSlugs = false } = {}) {
     useNewRenderer: true,
     renderer: {
       heading({ tokens, depth }) {
-        const text = this.parser.parseInline(tokens);
+        let text = this.parser.parseInline(tokens);
         const raw = unescape(this.parser.parseInline(tokens, this.parser.textRenderer))
           .toLowerCase()
           .trim()
@@ -43,6 +43,10 @@ export function gfmHeadingId({ prefix = '', globalSlugs = false } = {}) {
         const id = `${prefix}${slugger.slug(raw)}`;
         const heading = { level, text, id };
         headings.push(heading);
+
+	if (addAnchor) {
+	  text = `<a href="#${id}">${text}</a>`
+	}
 
         return `<h${level} id="${id}">${text}</h${level}>\n`;
       }
